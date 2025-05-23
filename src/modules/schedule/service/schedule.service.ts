@@ -24,7 +24,7 @@ export class ScheduleService {
       // Todo: getBalance의 결과 값을 로그('[getBalance] ${formatted}')로 출력합니다.
       // ⚠️ 로그 출력은 ETH 단위로 출력해야 합니다.(formatEther)
       const value = await this.ethersService.getBalance();
-      const formatted = this.ethersService.formatEther(BigInt(value));
+      const formatted = this.ethersService.formatEther(value);
 
       this.logger.log(`[getBalance] ${formatted}`);
     } catch (error) {
@@ -41,12 +41,17 @@ export class ScheduleService {
 
     try {
       // Todo: send1ETH 실행을 10번 반복하고, 반복이 끝나면 result의 상태를 true로 변경합니다.
+      const nonce = await this.ethersService.getNonce(
+        this.ethersService.getAccount1()
+      );
+
       for (let i = 0; i < tenTime; i++) {
-        await this.ethersService.send1ETH(i);
+        await this.ethersService.send1ETH(nonce + i);
       }
       result = true;
     } catch (error) {
       //  Todo: 에러 메세지를 에러 로그로 출력합니다.
+      result = false;
       this.logger.error(error.message);
     } finally {
       // Todo: tenTimesOneEthTransfer가 성공적으로 실행되었을 때만 실행 시간을 로그('[tenTimesOneEthTransfer] 실행 시간: ${end - start}ms'로 출력합니다.
